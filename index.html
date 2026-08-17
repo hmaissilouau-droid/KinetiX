@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kinetix — AI Creator OS & Motion Editor</title>
+  
+  <!-- Fonts Integration -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Inter:wght@300;400;600;700;800;900&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       1. SYSTEM VARIABLES & THEME CONFIGURATION
+       ========================================================================== */
+    :root {
+      --bg-pitch: #040405;
+      --bg-surface: #0a0a0d;
+      --bg-surface-elevated: #121217;
+      
+      --accent-red: #ff0033;
+      --accent-red-hover: #e6002e;
+      --accent-red-glow: rgba(255, 0, 51, 0.4);
+      --accent-red-subtle: rgba(255, 0, 51, 0.12);
+      
+      --glass-bg: rgba(15, 15, 20, 0.65);
+      --glass-bg-hover: rgba(25, 25, 32, 0.75);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-red: rgba(255, 0, 51, 0.35);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --font-ar: 'Cairo', system-ui, sans-serif;
+      --font-en: 'Inter', system-ui, sans-serif;
+      --font-display: 'Montserrat', sans-serif;
+      
+      --radius-xl: 20px;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ==========================================================================
+       2. GLOBAL RESET & BASE STYLES
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-pitch);
+      color: var(--text-main);
+      font-family: var(--font-ar);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(255, 0, 51, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(255, 0, 51, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(10, 10, 13, 1) 0%, rgba(4, 4, 5, 1) 100%);
+    }
+
+    body.lang-en {
+      font-family: var(--font-en);
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--glass-border);
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-red);
+    }
+
+    /* ==========================================================================
+       3. GLASSMORPHISM COMPONENTS
+       ========================================================================== */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+      transition: border-color var(--transition-normal);
+    }
+
+    .glass-panel:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-normal);
+      outline: none;
+    }
+
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .glass-btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-accent {
+      background: var(--accent-red);
+      border-color: var(--accent-red);
+      color: #ffffff;
+      box-shadow: 0 4px 20px var(--accent-red-glow);
+    }
+
+    .btn-accent:hover {
+      background: var(--accent-red-hover);
+      border-color: var(--accent-red-hover);
+      box-shadow: 0 6px 24px rgba(255, 0, 51, 0.6);
+    }
+
+    .glass-input, .glass-select, .glass-textarea {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--glass-border);
+      color: var(--text-main);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      outline: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all var(--transition-normal);
+    }
+
+    .glass-input:focus, .glass-select:focus, .glass-textarea:focus {
+      border-color: var(--accent-red);
+      box-shadow: 0 0 15px var(--accent-red-subtle);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    /* ==========================================================================
+       4. NAVBAR IMPLEMENTATION
+       ========================================================================== */
+    header.navbar {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      margin: 14px 14px 0 14px;
+      z-index: 100;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+    }
+
+    .logo-mark {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--accent-red), #99001f);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 1.3rem;
+      color: #fff;
+      box-shadow: 0 0 20px var(--accent-red-glow);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      background: linear-gradient(180deg, #ffffff 30%, var(--accent-red) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .badge-admin {
+      background: rgba(255, 0, 51, 0.15);
+      border: 1px solid var(--accent-red);
+      color: var(--accent-red);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 12px var(--accent-red-subtle);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 0, 51, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 0, 51, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 0, 51, 0); }
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Credit Widget System */
+    .credit-widget {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--glass-border);
+    }
+
+    .credit-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .credit-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .credit-subtext {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+
+    .credit-progress-bg {
+      width: 90px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .credit-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-red), #ff4d6d);
+      width: 100%;
+      border-radius: 3px;
+      transition: width var(--transition-slow);
+      box-shadow: 0 0 10px var(--accent-red);
+    }
+
+    /* ==========================================================================
+       5. MAIN APPLICATION LAYOUT
+       ========================================================================== */
+    .app-viewport {
+      display: grid;
+      grid-template-columns: 320px 1fr 340px;
+      gap: 14px;
+      padding: 14px;
+      height: calc(100vh - 84px);
+    }
+
+    .sidebar-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .panel-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Workspace Central Section */
+    .editor-center {
+      display: grid;
+      grid-template-rows: 1fr 210px;
+      gap: 14px;
+    }
+
+    .canvas-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+    }
+
+    canvas#videoCanvas {
+      aspect-ratio: 9/16;
+      height: 92%;
+      max-height: 100%;
+      background: #000;
+      border-radius: var(--radius-md);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .canvas-overlay-controls {
+      position: absolute;
+      bottom: 20px;
+      display: flex;
+      gap: 12px;
+      background: rgba(10, 10, 13, 0.75);
+      border: 1px solid var(--glass-border);
+      padding: 8px 20px;
+      border-radius: 40px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Timeline Section */
+    .timeline-container {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .timeline-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .timeline-tracks {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+    }
+
+    .timeline-track {
+      height: 40px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--glass-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timeline-block {
+      position: absolute;
+      height: 84%;
+      top: 8%;
+      border-radius: 6px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .track-video { background: linear-gradient(90deg, var(--accent-red), #a30021); }
+    .track-text { background: linear-gradient(90deg, #00d2ff, #0066ff); }
+    .track-audio { background: linear-gradient(90deg, #00f2fe, #4facfe); }
+
+    /* ==========================================================================
+       6. MODAL & POPUP OVERLAYS
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--transition-normal);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      width: 460px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transform: scale(0.92);
+      transition: transform var(--transition-normal);
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 12px;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Admin Panel Toggle Content */
+    .admin-panel {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .admin-panel.active {
+      display: flex;
+    }
+
+    /* ==========================================================================
+       7. RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 1200px) {
+      .app-viewport {
+        grid-template-columns: 280px 1fr 280px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      body { overflow: auto; }
+      .app-viewport {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+      }
+      .editor-center {
+        height: 700px;
+      }
+    }
+  </style>
+</head>
+<body class="lang-ar">
+
+  <!-- NAVIGATION HEADER -->
+  <header class="navbar glass-panel">
+    <div class="logo-container" id="brandLogo" title="اضغط 4 مرات بانتظام لفتح لوحة المشرف">
+      <div class="logo-mark">K</div>
+      <div class="logo-text">KINETIX</div>
+      <span id="adminBadge" class="badge-admin" style="display: none;">OWNER MODE</span>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Credit Engine Tracker Widget -->
+      <div class="credit-widget">
+        <div class="credit-info">
+          <span id="creditLabel" class="credit-label">الرصيد: 10/10</span>
+          <span class="credit-subtext" data-i18n="resetTimer">تجديد تلقائي خلال 24 ساعة</span>
+        </div>
+        <div class="credit-progress-bg">
+          <div id="creditProgress" class="credit-progress-fill"></div>
+        </div>
+      </div>
+
+      <button class="glass-btn" id="langSwitchBtn">English</button>
+      <button class="glass-btn btn-accent" id="exportBtn">⚡ تصدير الفيديو</button>
+    </div>
+  </header>
+
+  <!-- WORKSPACE VIEWPORT -->
+  <main class="app-viewport">
+    
+    <!-- LEFT PANEL: PIPELINE & AUTOMATION CONTROLS -->
+    <section class="sidebar-panel glass-panel">
+      <div class="panel-title" data-i18n="pipeline">⚙️ خط الإنتاج والتوليد</div>
+      
+      <div class="control-group">
+        <div class="control-label">
+          <span data-i18n="preset">نسبة الشاشة والقالب</span>
+          <span style="color: var(--accent-red);">9:16</span>
+        </div>
+        <select id="presetSelect" class="glass-select">
+          <option value="reels">TikTok / Instagram Reels (9:16)</option>
+          <option value="shorts">YouTube Shorts (9:16)</option>
+          <option value="square">Feed Post (1:1)</option>
+          <option value="landscape">Cinematic Landscape (16:9)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label" data-i18n="textScript">النص والترجمة التلقائية (Captions)</div>
+        <textarea id="scriptInput" class="glass-textarea" rows="5" placeholder="أدخل سيناريو الفيديو هنا لتشغيل محرك الحركة والترجمة..."></textarea>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label" data-i18n="fontSelect">نوع الخط (Typography)</div>
+        <select id="fontSelect" class="glass-select">
+          <option value="Cairo">Cairo (خط عربي حديث)</option>
+          <option value="Inter">Inter (English Clean)</option>
+          <option value="Impact">Impact (Shorts Bold Style)</option>
+          <option value="Montserrat">Montserrat (Cinematic Display)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label" data-i18n="animationType">أنماط الحركة (Motion Engine)</div>
+        <select id="animSelect" class="glass-select">
+          <option value="bounce">Alight Motion Elastic Bounce</option>
+          <option value="aeGlow">After Effects Neon Glow</option>
+          <option value="fadeSlide">Kinetic Slide & Scale</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- CENTER PANEL: LIVE VIDEO CANVAS & TIMELINE -->
+    <section class="editor-center">
+      <div class="canvas-container">
+        <canvas id="videoCanvas" width="1080" height="1920"></canvas>
+        
+        <div class="canvas-overlay-controls">
+          <button class="glass-btn" id="playBtn">▶ تشغيل</button>
+          <button class="glass-btn" id="pauseBtn">⏸ إيقاف</button>
+          <button class="glass-btn" id="restartBtn">🔄 إعادة</button>
+        </div>
+      </div>
+
+      <!-- TIMELINE TRACKS ENGINE -->
+      <div class="timeline-container glass-panel">
+        <div class="timeline-toolbar">
+          <div class="panel-title" style="border: none; padding: 0;" data-i18n="timeline">🎬 مسارات التحرير (Multi-Track)</div>
+          <span style="font-size: 0.75rem; color: var(--text-dim);">00:00 / 00:15</span>
+        </div>
+
+        <div class="timeline-tracks">
+          <div class="timeline-track">
+            <div class="timeline-block track-video" style="left: 5%; width: 90%;">فيديو الخلفية الأساسي (Base Video Layer)</div>
+          </div>
+          <div class="timeline-track">
+            <div class="timeline-block track-text" style="left: 10%; width: 75%;">نص الكينتيك والترجمة (Kinetic Text Layer)</div>
+          </div>
+          <div class="timeline-track">
+            <div class="timeline-block track-audio" style="left: 5%; width: 90%;">المؤثرات الصوتية والموسيقى (Audio FX Track)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: ADVANCED FX & BACKEND API HOOKS -->
+    <section class="sidebar-panel glass-panel">
+      <div class="panel-title" data-i18n="fxEngine">🎨 معالجة الألوان والمؤثرات</div>
+
+      <div class="control-group">
+        <div class="control-label" data-i18n="colorGrading">فلاتر وتصحيح الألوان</div>
+        <select id="filterSelect" class="glass-select">
+          <option value="none">طبيعي (No Filter)</option>
+          <option value="cyberpunk">Cyberpunk Neon Red</option>
+          <option value="dramatic">Dramatic Contrast B&W</option>
+          <option value="warm">Warm Vintage Film</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <div class="control-label" data-i18n="audioSync">رفع فيديو / صوت مخصص</div>
+        <input type="file" id="mediaUpload" class="glass-input" accept="video/*,audio/*">
+      </div>
+
+      <div class="control-group" style="margin-top: 10px;">
+        <div class="control-label">دقة التصدير (Export Quality)</div>
+        <select id="qualitySelect" class="glass-select">
+          <option value="1080p">1080p Full HD (60 FPS)</option>
+          <option value="4k">4K Ultra HD (خاص بالمشرف)</option>
+        </select>
+      </div>
+
+      <hr style="border-color: var(--glass-border); margin-top: auto;">
+
+      <button class="glass-btn" id="adminTriggerBtn" style="justify-content: center; width: 100%;">🔑 دخول مالك النظام (Admin Access)</button>
+    </section>
+
+  </main>
+
+  <!-- MODAL: PAYWALL SYSTEM (0 CREDITS) -->
+  <div class="modal-overlay" id="paywallModal">
+    <div class="modal-box glass-panel">
+      <div class="modal-header">
+        <span class="modal-title" style="color: var(--accent-red);" data-i18n="paywallTitle">استنفذت رصيدك اليومي!</span>
+      </div>
+      <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;" data-i18n="paywallDesc">
+        لقد استهلكت 10/10 فيديوهات المتاحة في الخطة المجانية لهذا اليوم. يتم تجديد النقاط تلقائياً كل 24 ساعة، أو يمكنك الاشتراك لشحن نقاط إضافية فوراً.
+      </p>
+      
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <button class="glass-btn btn-accent" style="justify-content: center;">شراء 50 نقطة إضافية ($4.99)</button>
+        <button class="glass-btn" style="justify-content: center;">اشتراك Kinetix Pro غير محدود ($19/شهرياً)</button>
+      </div>
+      <button class="glass-btn" id="closePaywallBtn" style="margin-top: 10px; justify-content: center;">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- MODAL: ADMIN ACCESS CONTROL PANEL -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-box glass-panel">
+      <div class="modal-header">
+        <span class="modal-title">لوحة تحكم مالك النظام (Owner Panel)</span>
+      </div>
+
+      <div class="control-group" id="loginGroup">
+        <div class="control-label">أدخل كلمة مرور المالك للتحقق:</div>
+        <input type="password" id="adminPassInput" class="glass-input" placeholder="كلمة المرور...">
+        <button class="glass-btn btn-accent" id="loginAdminBtn" style="margin-top: 8px; justify-content: center;">تسجيل الدخول كـ Owner</button>
+      </div>
+
+      <!-- Verified Admin Controls Panel -->
+      <div class="admin-panel" id="adminControls">
+        <p style="color: #00ff88; font-size: 0.85rem; font-weight: 600;">✔ أهلاً بك يا مالك الموقع! تم تفعيل الصلاحيات الكاملة وإلغاء القيود.</p>
+        <button class="glass-btn" id="infiniteCreditsBtn" style="justify-content: center;">تفعيل وضع النقاط اللانهائية (∞ Credits)</button>
+        <button class="glass-btn" id="resetDailyBtn" style="justify-content: center;">إعادة ضبط العداد اليومي</button>
+        <button class="glass-btn" id="logoutAdminBtn" style="justify-content: center; border-color: var(--accent-red); color: var(--accent-red);">تسجيل الخروج من المالك</button>
+      </div>
+
+      <button class="glass-btn" id="closeAdminBtn" style="margin-top: 10px; justify-content: center;">إغلاق النافذة</button>
+    </div>
+  </div>
+
+  <!-- JS MODULAR ARCHITECTURE SCRIPTS -->
+  <script>
+    /**
+     * ==========================================================================
+     * MODULE 1: AUTHENTICATION & SECURITY SYSTEM (AuthManager)
+     * ==========================================================================
+     */
+    class AuthManager {
+      constructor(app) {
+        this.app = app;
+        this.SECRET_KEY = "hmaissilouay88"; // Strict Owner Password
+        this.isAdmin = localStorage.getItem("kinetix_admin") === "true";
+      }
+
+      verifyPassword(inputPass) {
+        if (inputPass === this.SECRET_KEY) {
+          this.isAdmin = true;
+          localStorage.setItem("kinetix_admin", "true");
+          this.app.creditManager.setUnlimited();
+          this.app.ui.updateAdminUI(true);
+          return true;
+        }
+        return false;
+      }
+
+      logout() {
+        this.isAdmin = false;
+        localStorage.removeItem("kinetix_admin");
+        localStorage.setItem("kinetix_credits", 10);
+        this.app.ui.updateAdminUI(false);
+        this.app.ui.updateCreditUI();
+      }
+    }
+
+    /**
+     * ==========================================================================
+     * MODULE 2: FREEMIUM & CREDIT SYSTEM MANAGER (CreditManager)
+     * ==========================================================================
+     */
+    class CreditManager {
+      constructor(app) {
+        this.app = app;
+        this.maxDaily = 10;
+        this.initCredits();
+      }
+
+      initCredits() {
+        const today = new Date().toDateString();
+        const storedDate = localStorage.getItem("kinetix_date");
+        
+        if (storedDate !== today) {
+          localStorage.setItem("kinetix_date", today);
+          if (!this.app.authManager.isAdmin) {
+            localStorage.setItem("kinetix_credits", this.maxDaily);
+          }
+        }
+
+        if (this.app.authManager.isAdmin) {
+          this.setUnlimited();
+        }
+      }
+
+      getCredits() {
+        if (this.app.authManager.isAdmin) return Infinity;
+        return parseInt(localStorage.getItem("kinetix_credits") || "10", 10);
+      }
+
+      deductCredit() {
+        if (this.app.authManager.isAdmin) return true;
+
+        let current = this.getCredits();
+        if (current > 0) {
+          current--;
+          localStorage.setItem("kinetix_credits", current);
+          this.app.ui.updateCreditUI();
+          return true;
+        }
+        return false;
+      }
+
+      setUnlimited() {
+        localStorage.setItem("kinetix_credits", 999999);
+        this.app.ui.updateCreditUI();
+      }
+    }
+
+    /**
+     * ==========================================================================
+     * MODULE 3: VIDEO CANVAS RENDERING ENGINE (VideoEngine)
+     * ==========================================================================
+     */
+    class VideoEngine {
+      constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.isPlaying = false;
+        this.animationFrameId = null;
+        
+        this.text = "Kinetix Engine Ready";
+        this.font = "Cairo";
+        this.animStyle = "bounce";
+        this.filter = "none";
+        this.frame = 0;
+
+        this.startRenderLoop();
+      }
+
+      setTextParameters(text, font, animStyle) {
+        this.text = text.trim() !== "" ? text : "Kinetix Kinetic Motion";
+        this.font = font;
+        this.animStyle = animStyle;
+      }
+
+      setFilter(filterName) {
+        this.filter = filterName;
+      }
+
+      render() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render Canvas Background
+        this.ctx.fillStyle = "#070709";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Render Decorative Motion Grid
+        this.ctx.strokeStyle = "rgba(255, 0, 51, 0.12)";
+        this.ctx.lineWidth = 2;
+        for (let i = 0; i < this.canvas.width; i += 90) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(i, 0);
+          this.ctx.lineTo(i, this.canvas.height);
+          this.ctx.stroke();
+        }
+
+        // Apply Color Grading Filter Logic
+        if (this.filter === "cyberpunk") {
+          this.ctx.fillStyle = "rgba(255, 0, 51, 0.1)";
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        } else if (this.filter === "warm") {
+          this.ctx.fillStyle = "rgba(255, 170, 0, 0.08)";
+          this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+
+        // Render Animated Text (Kinetic Mechanics)
+        this.ctx.save();
+        this.ctx.font = `800 68px ${this.font}`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+
+        let offsetY = 0;
+        let scale = 1;
+
+        if (this.isPlaying) {
+          this.frame++;
+          if (this.animStyle === "bounce") {
+            offsetY = Math.sin(this.frame * 0.12) * 25;
+          } else if (this.animStyle === "aeGlow") {
+            this.ctx.shadowColor = "#ff0033";
+            this.ctx.shadowBlur = Math.abs(Math.sin(this.frame * 0.08) * 50);
+          } else if (this.animStyle === "fadeSlide") {
+            scale = 0.95 + Math.abs(Math.sin(this.frame * 0.05) * 0.1);
+          }
+        }
+
+        this.ctx.translate(this.canvas.width / 2, (this.canvas.height / 2) + offsetY);
+        this.ctx.scale(scale, scale);
+
+        // Text Outline & Fill
+        this.ctx.strokeStyle = "rgba(0,0,0,0.8)";
+        this.ctx.lineWidth = 8;
+        this.ctx.strokeText(this.text, 0, 0);
+
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.fillText(this.text, 0, 0);
+
+        this.ctx.restore();
+      }
+
+      startRenderLoop() {
+        const loop = () => {
+          this.render();
+          this.animationFrameId = requestAnimationFrame(loop);
+        };
+        loop();
+      }
+
+      play() { this.isPlaying = true; }
+      pause() { this.isPlaying = false; }
+      restart() { this.frame = 0; this.isPlaying = true; }
+
+      /* EXTERNAL API RENDERING HOOK SLOT */
+      async exportVideoProcess() {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve({ success: true, url: "download_ready.mp4" });
+          }, 3000);
+        });
+      }
+    }
+
+    /**
+     * ==========================================================================
+     * MODULE 4: USER INTERFACE & STATE MANAGER (AppUI)
+     * ==========================================================================
+     */
+    class AppUI {
+      constructor(app) {
+        this.app = app;
+        this.currentLang = 'ar';
+        this.translations = {
+          ar: {
+            pipeline: "⚙️ خط الإنتاج والتوليد",
+            preset: "نسبة الشاشة والقالب",
+            textScript: "النص والترجمة التلقائية (Captions)",
+            fontSelect: "نوع الخط (Typography)",
+            animationType: "أنماط الحركة (Motion Engine)",
+            timeline: "🎬 مسارات التحرير (Multi-Track)",
+            fxEngine: "🎨 معالجة الألوان والمؤثرات",
+            colorGrading: "فلاتر وتصحيح الألوان",
+            audioSync: "رفع فيديو / صوت مخصص",
+            resetTimer: "تجديد تلقائي خلال 24 ساعة",
+            paywallTitle: "استنفذت رصيدك اليومي!",
+            paywallDesc: "لقد استهلكت 10/10 فيديوهات المتاحة في الخطة المجانية لهذا اليوم. يتم تجديد النقاط تلقائياً كل 24 ساعة، أو يمكنك الاشتراك لشحن نقاط إضافية فوراً."
+          },
+          en: {
+            pipeline: "⚙️ Automation Pipeline",
+            preset: "Aspect Ratio & Preset",
+            textScript: "Auto Captions & Script",
+            fontSelect: "Font Typography",
+            animationType: "Kinetic Motion Engine",
+            timeline: "🎬 Editing Tracks (Multi-Track)",
+            fxEngine: "🎨 FX & Color Processing",
+            colorGrading: "Color Grading Filters",
+            audioSync: "Upload Media / Audio",
+            resetTimer: "Auto reset in 24 hours",
+            paywallTitle: "Daily Limit Reached!",
+            paywallDesc: "You have used 10/10 video renders for today. Daily quota resets automatically every 24 hours or you can upgrade to Kinetix Pro."
+          }
+        };
+
+        this.bindEvents();
+        this.updateCreditUI();
+      }
+
+      bindEvents() {
+        // Logo Secret Multi-Click Trigger
+        let logoClicks = 0;
+        document.getElementById("brandLogo").addEventListener("click", () => {
+          logoClicks++;
+          if (logoClicks >= 4) {
+            this.toggleModal("adminModal", true);
+            logoClicks = 0;
+          }
+        });
+
+        // Key Combo Shortcut (Ctrl + Shift + A)
+        window.addEventListener("keydown", (e) => {
+          if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+            e.preventDefault();
+            this.toggleModal("adminModal", true);
+          }
+        });
+
+        // Language Toggle Event
+        document.getElementById("langSwitchBtn").addEventListener("click", () => {
+          this.toggleLanguage();
+        });
+
+        // Video Export Event
+        document.getElementById("exportBtn").addEventListener("click", async () => {
+          await this.handleExport();
+        });
+
+        // Real-time Inputs Event Sync
+        document.getElementById("scriptInput").addEventListener("input", () => this.syncEngineParameters());
+        document.getElementById("fontSelect").addEventListener("change", () => this.syncEngineParameters());
+        document.getElementById("animSelect").addEventListener("change", () => this.syncEngineParameters());
+        document.getElementById("filterSelect").addEventListener("change", (e) => {
+          this.app.videoEngine.setFilter(e.target.value);
+        });
+
+        // Playback Canvas Controls
+        document.getElementById("playBtn").addEventListener("click", () => this.app.videoEngine.play());
+        document.getElementById("pauseBtn").addEventListener("click", () => this.app.videoEngine.pause());
+        document.getElementById("restartBtn").addEventListener("click", () => this.app.videoEngine.restart());
+
+        // Modal Triggers
+        document.getElementById("adminTriggerBtn").addEventListener("click", () => this.toggleModal("adminModal", true));
+        document.getElementById("closeAdminBtn").addEventListener("click", () => this.toggleModal("adminModal", false));
+        document.getElementById("closePaywallBtn").addEventListener("click", () => this.toggleModal("paywallModal", false));
+
+        // Admin Auth Action
+        document.getElementById("loginAdminBtn").addEventListener("click", () => {
+          const pass = document.getElementById("adminPassInput").value;
+          if (this.app.authManager.verifyPassword(pass)) {
+            alert("تم التحقق بنجاح! مرحباً بك يا مالك النظام.");
+            document.getElementById("adminPassInput").value = "";
+          } else {
+            alert("كلمة المرور خاطئة!");
+          }
+        });
+
+        document.getElementById("logoutAdminBtn").addEventListener("click", () => {
+          this.app.authManager.logout();
+          alert("تم تسجيل الخروج وتطبيق القيود العادية.");
+        });
+
+        document.getElementById("infiniteCreditsBtn").addEventListener("click", () => {
+          this.app.creditManager.setUnlimited();
+          alert("تم تفعيل وضع النقاط اللانهائية (∞ Credits).");
+        });
+      }
+
+      syncEngineParameters() {
+        const text = document.getElementById("scriptInput").value;
+        const font = document.getElementById("fontSelect").value;
+        const anim = document.getElementById("animSelect").value;
+        this.app.videoEngine.setTextParameters(text, font, anim);
+      }
+
+      async handleExport() {
+        if (!this.app.creditManager.deductCredit()) {
+          this.toggleModal("paywallModal", true);
+          return;
+        }
+
+        const exportBtn = document.getElementById("exportBtn");
+        exportBtn.innerText = "⏳ جاري التصدير والمعالجة...";
+        exportBtn.style.opacity = "0.6";
+
+        try {
+          const result = await this.app.videoEngine.exportVideoProcess();
+          if (result.success) {
+            alert("✨ تم إنتاج الفيديو بنجاح عبر Kinetix Engine!");
+          }
+        } catch (err) {
+          console.error("Rendering Error:", err);
+          alert("حدث خطأ أثناء معالجة الفيديو.");
+        } finally {
+          exportBtn.innerText = "⚡ تصدير الفيديو";
+          exportBtn.style.opacity = "1";
+        }
+      }
+
+      updateCreditUI() {
+        const credits = this.app.creditManager.getCredits();
+        const label = document.getElementById("creditLabel");
+        const fill = document.getElementById("creditProgress");
+
+        if (credits === Infinity) {
+          label.innerText = "الرصيد: غير محدود (∞)";
+          fill.style.width = "100%";
+        } else {
+          label.innerText = `الرصيد: ${credits}/10`;
+          fill.style.width = `${(credits / 10) * 100}%`;
+        }
+      }
+
+      updateAdminUI(isAdmin) {
+        document.getElementById("adminBadge").style.display = isAdmin ? "inline-block" : "none";
+        document.getElementById("adminControls").classList.toggle("active", isAdmin);
+        document.getElementById("loginGroup").style.display = isAdmin ? "none" : "flex";
+      }
+
+      toggleLanguage() {
+        this.currentLang = this.currentLang === 'ar' ? 'en' : 'ar';
+        document.body.className = `lang-${this.currentLang}`;
+        document.body.dir = this.currentLang === 'ar' ? 'rtl' : 'ltr';
+
+        document.querySelectorAll("[data-i18n]").forEach(el => {
+          const key = el.getAttribute("data-i18n");
+          if (this.translations[this.currentLang][key]) {
+            el.innerText = this.translations[this.currentLang][key];
+          }
+        });
+      }
+
+      toggleModal(id, show) {
+        document.getElementById(id).classList.toggle("active", show);
+      }
+    }
+
+    /**
+     * ==========================================================================
+     * MODULE 5: APPLICATION LAUNCHER & CONTROLLER
+     * ==========================================================================
+     */
+    class KinetixApp {
+      constructor() {
+        this.authManager = new AuthManager(this);
+        this.creditManager = new CreditManager(this);
+        this.videoEngine = new VideoEngine("videoCanvas");
+        this.ui = new AppUI(this);
+
+        if (this.authManager.isAdmin) {
+          this.ui.updateAdminUI(true);
+        }
+      }
+    }
+
+    // Launch Application
+    window.addEventListener("DOMContentLoaded", () => {
+      window.Kinetix = new KinetixApp();
+    });
+  </script>
+</body>
+</html>
